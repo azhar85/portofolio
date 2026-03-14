@@ -25,7 +25,7 @@ export default function Contact() {
     <section id="contact" className="section">
       <div className="container">
         <div className="section-header">
-          <span className="section-label">// Contact</span>
+
           <h2 className="section-title">Let&apos;s <span className="highlight">Connect</span></h2>
           <p className="section-desc">Have a project in mind? Drop me a message!</p>
         </div>
@@ -36,9 +36,9 @@ export default function Contact() {
             <div className="contact-item glass-card"><Phone size={24} color="#ffd700" /><div><h4>Phone</h4><p>Available on request</p></div></div>
           </div>
           <form onSubmit={handleSubmit} className="contact-form glass-card">
-            <div className="form-group"><label>Name</label><input type="text" placeholder="Your name" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} required /></div>
-            <div className="form-group"><label>Email</label><input type="email" placeholder="your@email.com" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} required /></div>
-            <div className="form-group"><label>Message</label><textarea placeholder="Your message..." rows={5} value={formData.message} onChange={(e) => setFormData({...formData, message: e.target.value})} required /></div>
+            <div className="form-group"><label>Name</label><input type="text" placeholder="Your name" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} required /></div>
+            <div className="form-group"><label>Email</label><input type="email" placeholder="your@email.com" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} required /></div>
+            <div className="form-group"><label>Message</label><textarea placeholder="Your message..." rows={5} value={formData.message} onChange={(e) => setFormData({ ...formData, message: e.target.value })} required /></div>
             <button type="submit" className="btn btn-primary" disabled={loading}>{loading ? 'Sending...' : 'Send Message'}<Send size={18} /></button>
             {status === 'success' && <div className="form-status form-success"><CheckCircle size={18} />Message sent!</div>}
             {status === 'error' && <div className="form-status form-error"><AlertCircle size={18} />Failed. Try again.</div>}

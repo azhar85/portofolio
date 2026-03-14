@@ -60,7 +60,7 @@ export default function Businesses({ businesses }) {
     <section id="business" className="section" ref={sectionRef}>
       <div className="container">
         <div className="section-header">
-          <span className="section-label">// Business Ventures</span>
+
           <h2 className="section-title">
             My <span className="highlight">Businesses</span>
           </h2>
@@ -79,7 +79,7 @@ export default function Businesses({ businesses }) {
               <div className="biz-header">
                 <div className="biz-logo" style={{ overflow: 'hidden' }}>
                   {biz.logo_url ? (
-                    <img src={biz.logo_url} alt={biz.name} style={{width:'100%',height:'100%',objectFit:'cover'}} />
+                    <img src={biz.logo_url} alt={biz.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   ) : (
                     <Building2 size={28} />
                   )}

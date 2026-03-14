@@ -27,7 +27,7 @@ export default function About({ profile, experiences }) {
     <section id="about" className="section" ref={sectionRef}>
       <div className="container">
         <div className="section-header">
-          <span className="section-label">// About Me</span>
+
           <h2 className="section-title">
             Know Who <span className="highlight">I Am</span>
           </h2>
@@ -37,7 +37,7 @@ export default function About({ profile, experiences }) {
           <div className="about-left">
             <div className="about-avatar glass-card">
               {profile?.avatar_url ? (
-                <img src={profile.avatar_url} alt={profile.name} style={{width:'100%',height:'100%',objectFit:'cover',position:'absolute',inset:0}} />
+                <img src={profile.avatar_url} alt={profile.name} style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0 }} />
               ) : (
                 <div className="avatar-placeholder">
                   <User size={64} strokeWidth={1} />

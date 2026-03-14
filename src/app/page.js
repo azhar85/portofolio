@@ -13,7 +13,7 @@ async function getData() {
     process.env.NEXT_PUBLIC_SUPABASE_URL,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   );
-  
+
   const [profileRes, skillsRes, projectsRes, experiencesRes, businessesRes, socialRes] = await Promise.all([
     supabase.from('profile').select('*').limit(1).single(),
     supabase.from('skills').select('*').order('category'),
@@ -35,7 +35,7 @@ async function getData() {
 
 export default async function Home() {
   let data = { profile: null, skills: [], projects: [], experiences: [], businesses: [], socialLinks: [] };
-  
+
   try {
     data = await getData();
   } catch (e) {

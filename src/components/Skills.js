@@ -37,7 +37,7 @@ export default function Skills({ skills }) {
     <section id="skills" className="section" ref={sectionRef}>
       <div className="container">
         <div className="section-header">
-          <span className="section-label">// Skills</span>
+
           <h2 className="section-title">
             My <span className="highlight">Tech Stack</span>
           </h2>

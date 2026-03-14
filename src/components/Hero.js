@@ -15,7 +15,7 @@ export default function Hero({ profile, socialLinks }) {
     { platform: 'LinkedIn', url: 'https://linkedin.com', icon: 'linkedin' }
   ];
 
-  const getIcon = (iconStr, size=20) => {
+  const getIcon = (iconStr, size = 20) => {
     switch (iconStr?.toLowerCase()) {
       case 'github': return <Github size={size} />;
       case 'linkedin': return <Linkedin size={size} />;

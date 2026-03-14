@@ -61,7 +61,7 @@ export default function Projects({ projects }) {
     <section id="projects" className="section" ref={sectionRef}>
       <div className="container">
         <div className="section-header">
-          <span className="section-label">// Projects</span>
+
           <h2 className="section-title">
             Featured <span className="highlight">Work</span>
           </h2>
@@ -77,7 +77,7 @@ export default function Projects({ projects }) {
             >
               <div className="project-image">
                 {project.image_url ? (
-                  <img src={project.image_url} alt={project.title} style={{width:'100%',height:'100%',objectFit:'cover'}} />
+                  <img src={project.image_url} alt={project.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 ) : (
                   <div className="project-image-placeholder">
                     <span className="project-image-icon">{'</>'}</span>

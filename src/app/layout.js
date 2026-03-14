@@ -1,4 +1,5 @@
 import "./globals.css";
+import StyledJsxRegistry from "./registry";
 
 export const metadata = {
   title: "Ahmad Azhar — Developer & Entrepreneur",
@@ -14,7 +15,9 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <StyledJsxRegistry>{children}</StyledJsxRegistry>
+      </body>
     </html>
   );
 }

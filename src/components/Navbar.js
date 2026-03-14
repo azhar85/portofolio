@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Menu, X } from 'lucide-react';
 
 const navLinks = [
   { label: 'Home', href: '#home' },
@@ -20,7 +19,7 @@ export default function Navbar() {
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 50);
-      
+
       const sections = navLinks.map(l => l.href.replace('#', ''));
       for (let i = sections.length - 1; i >= 0; i--) {
         const el = document.getElementById(sections[i]);
@@ -37,11 +36,7 @@ export default function Navbar() {
   return (
     <nav className={`navbar ${scrolled ? 'navbar-scrolled' : ''}`}>
       <div className="nav-container">
-        <a href="#home" className="nav-logo">
-          <span className="logo-bracket">&lt;</span>
-          AZ
-          <span className="logo-bracket">/&gt;</span>
-        </a>
+
 
         <div className={`nav-links ${mobileOpen ? 'nav-links-open' : ''}`}>
           {navLinks.map((link) => (
@@ -56,8 +51,11 @@ export default function Navbar() {
           ))}
         </div>
 
-        <button className="nav-toggle" onClick={() => setMobileOpen(!mobileOpen)}>
-          {mobileOpen ? <X size={24} /> : <Menu size={24} />}
+        <button className={`nav-toggle ${mobileOpen ? 'open' : ''}`} onClick={() => setMobileOpen(!mobileOpen)} aria-label="Toggle menu">
+          <span className="hamburger-line top-line"></span>
+          <span className="hamburger-line middle-line-1"></span>
+          <span className="hamburger-line middle-line-2"></span>
+          <span className="hamburger-line bottom-line"></span>
         </button>
       </div>
 
@@ -129,18 +127,63 @@ export default function Navbar() {
           background: #ffd700;
           border-radius: 2px;
         }
+        /* Modern Hamburger Menu */
         .nav-toggle {
           display: none;
-          background: none;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          width: 44px;
+          height: 44px;
+          background: transparent;
           border: none;
-          color: #ffd700;
           cursor: pointer;
-          padding: 8px;
+          padding: 0;
+          z-index: 1001;
+          position: relative;
+        }
+        
+        .hamburger-line {
+          display: block;
+          position: absolute;
+          height: 2px;
+          width: 24px;
+          background: #ffd700;
+          border-radius: 2px;
+          transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .top-line { transform: translateY(-8px); width: 14px; right: 10px; }
+        .middle-line-1 { transform: translateY(0); }
+        .middle-line-2 { transform: translateY(0); opacity: 0; }
+        .bottom-line { transform: translateY(8px); width: 18px; right: 10px; }
+        
+        .nav-toggle:hover .top-line, .nav-toggle:hover .bottom-line { width: 24px; right: 10px; }
+        
+        .nav-toggle.open .top-line {
+          transform: translateY(0) rotate(45deg);
+          width: 24px;
+        }
+        
+        .nav-toggle.open .middle-line-1 {
+          opacity: 0;
+          transform: rotate(45deg);
+        }
+        
+        .nav-toggle.open .middle-line-2 {
+          opacity: 1;
+          transform: rotate(-45deg);
+        }
+        
+        .nav-toggle.open .bottom-line {
+          transform: translateY(0) rotate(-45deg);
+          width: 24px;
+          opacity: 0;
         }
         @media (max-width: 768px) {
-          .nav-toggle { display: block; }
+          .nav-toggle { display: flex; }
           .nav-links {
-            display: none;
+            display: flex;
             position: absolute;
             top: 100%;
             left: 0;
@@ -148,11 +191,40 @@ export default function Navbar() {
             background: rgba(10, 10, 10, 0.95);
             backdrop-filter: blur(20px);
             flex-direction: column;
-            padding: 16px;
+            padding: 0;
             border-bottom: 1px solid rgba(255, 215, 0, 0.1);
+            max-height: 0;
+            overflow: hidden;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
           }
-          .nav-links-open { display: flex; }
-          .nav-link { width: 100%; padding: 12px 16px; }
+          .nav-links-open { 
+            max-height: 400px;
+            padding: 16px;
+            opacity: 1;
+            visibility: visible;
+          }
+          .nav-link { 
+            width: 100%; 
+            padding: 16px;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: opacity 0.3s ease, transform 0.3s ease, color 0.3s ease, background 0.3s ease;
+          }
+          .nav-links-open .nav-link {
+            opacity: 1;
+            transform: translateY(0);
+          }
+          .nav-links-open .nav-link:nth-child(1) { transition-delay: 0.1s; }
+          .nav-links-open .nav-link:nth-child(2) { transition-delay: 0.15s; }
+          .nav-links-open .nav-link:nth-child(3) { transition-delay: 0.2s; }
+          .nav-links-open .nav-link:nth-child(4) { transition-delay: 0.25s; }
+          .nav-links-open .nav-link:nth-child(5) { transition-delay: 0.3s; }
+          .nav-links-open .nav-link:nth-child(6) { transition-delay: 0.35s; }
+          .nav-link-active::after { display: none; }
         }
       `}</style>
     </nav>
