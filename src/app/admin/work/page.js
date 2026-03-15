@@ -285,8 +285,6 @@ export default function AdminWork() {
     }
   }
 
-
-
   // Format currency Helper
   const formatCurrency = (val) => {
     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(val || 0);
@@ -311,67 +309,67 @@ export default function AdminWork() {
       {loading ? (
         <div className="loading">Loading work data...</div>
       ) : (
-        <div className="work-grid">
+        <div className="work-list">
           {workList.map((work) => (
-            <div key={work.id} className="work-card glass-card">
-              <div className="work-card-header">
-                <div>
+            <div 
+              key={work.id} 
+              className="work-list-item glass-card"
+              onClick={() => handleOpenPaymentModal(work)}
+              style={{ cursor: 'pointer' }}
+            >
+              
+              {/* Left Side: Info */}
+              <div className="work-item-info">
+                <div className="work-item-header">
                   <h3 className="work-title">{work.project_name}</h3>
-                  <p className="work-client">{work.client_name ? `Client: ${work.client_name}` : 'No Client Name'}</p>
+                  <span className={`status-badge ${work.status === 'Finished' ? 'status-finished' : 'status-ongoing'}`}>
+                    {work.status === 'Finished' ? <CheckCircle size={12} /> : <Clock size={12} />}
+                    {work.status}
+                  </span>
                 </div>
-                <span className={`status-badge ${work.status === 'Finished' ? 'status-finished' : 'status-ongoing'}`}>
-                  {work.status === 'Finished' ? <CheckCircle size={14} /> : <Clock size={14} />}
-                  {work.status}
-                </span>
-              </div>
-
-              <div className="work-details">
-                <div className="detail-item">
-                  <span className="detail-label">Price:</span>
-                  <span className="detail-value highlight">{formatCurrency(work.price)}</span>
+                <div className="work-item-meta" style={{ marginTop: 4 }}>
+                  <span className="meta-price">{formatCurrency(work.price)}</span>
+                  <span className="meta-divider">•</span>
+                  <span className="meta-deadline">DL: {work.deadline || '-'}</span>
                 </div>
-                <div className="detail-item">
-                  <span className="detail-label">Deadline:</span>
-                  <span className="detail-value">{work.deadline || 'No deadline'}</span>
-                </div>
-
+                <p className="work-client" style={{ marginTop: 4 }}>{work.client_name ? `Client: ${work.client_name}` : 'No Client Name'}</p>
+                
                 {work.installment_features && (
-                  <div className="detail-item full-width" style={{ marginTop: 8, padding: 12, background: 'rgba(255,215,0,0.05)', borderRadius: 8, border: '1px solid rgba(255,215,0,0.1)' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', marginBottom: 4 }}>
-                      <span className="detail-label">Terbayar:</span>
-                      <span className="detail-value" style={{ color: '#00c864' }}>{formatCurrency(work.installments_paid)}</span>
+                  <div className="compact-progress" style={{ marginTop: 8 }}>
+                    <div className="compact-progress-header">
+                      <span>Terbayar: <strong className="text-success">{formatCurrency(work.installments_paid)}</strong></span>
+                      <span>Sisa: <strong className="text-danger">{formatCurrency(Math.max(0, work.price - work.installments_paid))}</strong></span>
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', marginBottom: 8 }}>
-                      <span className="detail-label">Sisa Tagihan:</span>
-                      <span className="detail-value" style={{ color: '#ff4444' }}>{formatCurrency(Math.max(0, work.price - work.installments_paid))}</span>
-                    </div>
-
-                    <div className="installment-progress">
-                      <div className="progress-bar">
-                        <div
-                          className="progress-fill"
-                          style={{ width: `${Math.min(100, Math.max(0, (work.installments_paid / Math.max(1, work.price)) * 100))}%` }}
-                        ></div>
-                      </div>
-                      <span className="progress-text">{Math.floor(Math.min(100, Math.max(0, (work.installments_paid / Math.max(1, work.price)) * 100)))}%</span>
+                    <div className="progress-bar thin">
+                      <div
+                        className="progress-fill"
+                        style={{ width: `${Math.min(100, Math.max(0, (work.installments_paid / Math.max(1, work.price)) * 100))}%` }}
+                      ></div>
                     </div>
                   </div>
                 )}
               </div>
 
-              <div className="work-actions">
-                <button className="btn btn-outline payment-btn" onClick={() => handleOpenPaymentModal(work)}>
-                  <span className="payment-icon">💰</span> Manage Payment
-                </button>
-                <div style={{ display: 'flex', gap: 8 }}>
-                  <button className="icon-btn edit-btn" onClick={() => handleOpenModal(work)} title="Edit Details">
-                    <Edit2 size={18} />
+              {/* Right Side: Actions (Stop propagation to prevent card click) */}
+              <div className="work-item-actions">
+                <div className="action-group">
+                  <button 
+                    className="icon-btn edit-btn" 
+                    onClick={(e) => { e.stopPropagation(); handleOpenModal(work); }} 
+                    title="Edit Details"
+                  >
+                    <Edit2 size={16} />
                   </button>
-                  <button className="icon-btn delete-btn" onClick={() => handleDeleteClick(work.id)} title="Delete">
-                    <Trash2 size={18} />
+                  <button 
+                    className="icon-btn delete-btn" 
+                    onClick={(e) => { e.stopPropagation(); handleDeleteClick(work.id); }} 
+                    title="Delete"
+                  >
+                    <Trash2 size={16} />
                   </button>
                 </div>
               </div>
+              
             </div>
           ))}
           {workList.length === 0 && (
@@ -520,24 +518,31 @@ export default function AdminWork() {
       {isPaymentModalOpen && paymentData && (
         <div className="modal-overlay">
           <div className="modal-content glass-card payment-modal">
-            <div className="modal-header">
-              <h2>Billing & Status: <span style={{ color: '#ffd700' }}>{paymentData.project_name}</span></h2>
+            <div className="modal-header" style={{ marginBottom: 16 }}>
+              <div>
+                <h2 style={{ fontSize: '1.3rem', marginBottom: 4 }}>Manage Payment</h2>
+                <span style={{ color: '#ffd700', fontSize: '0.9rem', fontWeight: 500 }}>{paymentData.project_name}</span>
+              </div>
               <button className="icon-btn" onClick={handleClosePaymentModal}><X size={24} /></button>
             </div>
 
-            <form onSubmit={handlePaymentSubmit} className="modal-form">
+            <form onSubmit={handlePaymentSubmit} className="modal-form" style={{ gap: 16 }}>
+              <div className="form-group">
+                <label>Project Status</label>
+                <select
+                  value={paymentData.status}
+                  onChange={e => setPaymentData({ ...paymentData, status: e.target.value })}
+                  style={{ 
+                    border: paymentData.status === 'Finished' ? '1px solid #00c864' : '1px solid rgba(255,215,0,0.3)',
+                    color: paymentData.status === 'Finished' ? '#00c864' : '#fff'
+                  }}
+                >
+                  <option value="On Going">On Going</option>
+                  <option value="Finished">Finished (Migrate to Projects)</option>
+                </select>
+              </div>
+
               <div className="form-row">
-                <div className="form-group">
-                  <label>Project Status</label>
-                  <select
-                    value={paymentData.status}
-                    onChange={e => setPaymentData({ ...paymentData, status: e.target.value })}
-                    style={{ border: paymentData.status === 'Finished' ? '1px solid #00c864' : '1px solid #ffd700' }}
-                  >
-                    <option value="On Going">On Going</option>
-                    <option value="Finished">Finished (Migrate to Projects)</option>
-                  </select>
-                </div>
                 <div className="form-group">
                   <label>Deadline</label>
                   <input
@@ -546,23 +551,22 @@ export default function AdminWork() {
                     onChange={e => setPaymentData({ ...paymentData, deadline: e.target.value })}
                   />
                 </div>
+                <div className="form-group">
+                  <label>Total Price (Rp)</label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="1000"
+                    value={paymentData.price}
+                    onChange={e => setPaymentData({ ...paymentData, price: parseFloat(e.target.value) || 0 })}
+                    placeholder="E.g. 5000000"
+                    className="price-input"
+                  />
+                </div>
               </div>
 
-              <div className="form-group">
-                <label>Total Price (Rp)</label>
-                <input
-                  type="number"
-                  min="0"
-                  step="1000"
-                  value={paymentData.price}
-                  onChange={e => setPaymentData({ ...paymentData, price: parseFloat(e.target.value) || 0 })}
-                  placeholder="Total Project Price"
-                  className="price-input"
-                />
-              </div>
-
-              <div className="form-group checkbox-group" style={{ marginTop: 8 }}>
-                <label className="checkbox-label">
+              <div className="form-group checkbox-group" style={{ marginTop: 8, padding: '10px 14px' }}>
+                <label className="checkbox-label" style={{ fontSize: '0.9rem' }}>
                   <input
                     type="checkbox"
                     checked={paymentData.installment_features}
@@ -573,11 +577,11 @@ export default function AdminWork() {
               </div>
 
               {paymentData.installment_features && (
-                <div className="installments-section" style={{ marginTop: 16, padding: '16px 0', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-
-                  <div className="form-row installments-row" style={{ background: 'rgba(0,0,0,0.2)' }}>
-                    <div className="form-group" style={{ width: '100%' }}>
-                      <label>Nominal Cicilan (Rp)</label>
+                <div className="installments-section" style={{ padding: '4px 0 0 0' }}>
+                  
+                  <div className="form-group" style={{ width: '100%', marginBottom: 16 }}>
+                    <label style={{ color: '#00c864' }}>+ Input Pembayaran Baru (Rp)</label>
+                    <div style={{ display: 'flex', gap: 8 }}>
                       <input
                         type="number"
                         min="0"
@@ -585,21 +589,24 @@ export default function AdminWork() {
                         value={paymentData.new_payment_amount || ''}
                         onChange={e => setPaymentData({ ...paymentData, new_payment_amount: parseFloat(e.target.value) || 0 })}
                         className="price-input"
-                        placeholder="Masukkan nominal bayar..."
-                        style={{ color: '#00c864' }}
+                        placeholder="Contoh: 1000000"
+                        style={{ flex: 1, borderColor: paymentData.new_payment_amount > 0 ? '#00c864' : 'rgba(255,255,255,0.1)' }}
                       />
-
                     </div>
                   </div>
 
                   {paymentData.payment_history && paymentData.payment_history.length > 0 && (
-                    <div className="history-section" style={{ marginTop: 16 }}>
-                      <h4 style={{ fontSize: '0.9rem', color: '#aaa', marginBottom: 8 }}>Histori Pembayaran</h4>
-                      <div className="history-list" style={{ maxHeight: '150px', overflowY: 'auto', background: 'rgba(0,0,0,0.3)', borderRadius: 8, padding: 8, border: '1px solid rgba(255,255,255,0.05)' }}>
+                    <div className="history-section">
+                      <h4>Histori Pembayaran</h4>
+                      <div className="history-list">
                         {paymentData.payment_history.map((hist, idx) => (
-                          <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px', borderBottom: idx < paymentData.payment_history.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none' }}>
-                            <span style={{ color: '#888', fontSize: '0.85rem' }}>{formatDate(hist.date)}</span>
-                            <span style={{ color: '#00c864', fontWeight: 500, fontSize: '0.9rem' }}>+ {formatCurrency(hist.amount)}</span>
+                          <div 
+                            key={idx} 
+                            className="history-item"
+                            style={{ borderBottom: idx < paymentData.payment_history.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none' }}
+                          >
+                            <span className="history-date">{formatDate(hist.date)}</span>
+                            <span className="history-amount">+ {formatCurrency(hist.amount)}</span>
                           </div>
                         ))}
                       </div>
@@ -608,30 +615,36 @@ export default function AdminWork() {
                 </div>
               )}
 
-              <div style={{ background: 'rgba(0,0,0,0.3)', padding: 16, borderRadius: 12, marginTop: 16, border: '1px dashed rgba(255,255,255,0.1)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-                  <span style={{ color: '#888' }}>Total Harga:</span>
-                  <span style={{ color: '#fff', fontWeight: 600 }}>{formatCurrency(paymentData.price)}</span>
+              <div className="summary-box">
+                <div className="summary-row">
+                  <span>Total Harga Project:</span>
+                  <span className="summary-total">{formatCurrency(paymentData.price)}</span>
                 </div>
                 {paymentData.installment_features && (
                   <>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-                      <span style={{ color: '#888' }}>Sudah Dibayar:</span>
-                      <span style={{ color: '#00c864', fontWeight: 600 }}>{formatCurrency(paymentData.installments_paid)}</span>
+                    <div className="summary-row">
+                      <span>Total Terbayar:</span>
+                      <span className="summary-paid">{formatCurrency(paymentData.installments_paid)}</span>
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: 8 }}>
-                      <span style={{ color: '#888' }}>Sisa Pembayaran:</span>
-                      <span style={{ color: '#ff4444', fontWeight: 600 }}>{formatCurrency(Math.max(0, paymentData.price - paymentData.installments_paid))}</span>
+                    {paymentData.new_payment_amount > 0 && (
+                      <div className="summary-row" style={{ color: '#00c864', fontSize: '0.85rem', marginTop: '-8px' }}>
+                        <span>+ Pembayaran Baru:</span>
+                        <span style={{ fontWeight: 600 }}>{formatCurrency(paymentData.new_payment_amount)}</span>
+                      </div>
+                    )}
+                    <div className="summary-row summary-sisa">
+                      <span>Sisa Pembayaran:</span>
+                      <span className="summary-deficit">
+                        {formatCurrency(Math.max(0, paymentData.price - (paymentData.installments_paid + (paymentData.new_payment_amount || 0))))}
+                      </span>
                     </div>
                   </>
                 )}
               </div>
 
-              <div className="modal-actions">
+              <div className="modal-actions" style={{ paddingTop: 16, marginTop: 4 }}>
                 <button type="button" className="btn btn-outline" onClick={handleClosePaymentModal}>Cancel</button>
-                <button type="submit" className="btn btn-primary" style={{ background: 'linear-gradient(135deg, #111, #222)', border: '1px solid #ffd700', color: '#ffd700' }}>
-                  Save Payment Info
-                </button>
+                <button type="submit" className="btn btn-primary premium-btn">Save Content</button>
               </div>
             </form>
           </div>
@@ -689,115 +702,149 @@ export default function AdminWork() {
         .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
         .page-title { font-size: 1.8rem; font-family: 'Space Grotesk', sans-serif; }
         
-        .work-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-          gap: 24px;
-        }
-        
-        .work-card {
-          padding: 24px;
-          border-radius: 16px;
+        .work-list {
           display: flex;
           flex-direction: column;
           gap: 16px;
         }
         
-        .work-card-header {
+        .work-list-item {
+          padding: 16px 20px;
+          border-radius: 12px;
           display: flex;
           justify-content: space-between;
-          align-items: flex-start;
-          border-bottom: 1px solid rgba(255,255,255,0.05);
-          padding-bottom: 16px;
+          align-items: center;
+          gap: 24px;
+          transition: transform 0.2s ease, box-shadow 0.2s ease;
+          border: 1px solid rgba(255,255,255,0.05);
+        }
+        .work-list-item:hover {
+          background: rgba(255,255,255,0.03);
+          border-color: rgba(255,215,0,0.15);
         }
         
-        .work-title { font-size: 1.2rem; font-weight: 600; margin-bottom: 4px; color: #f5f5f5; }
-        .work-client { font-size: 0.85rem; color: #888; }
+        .work-item-info {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+        }
+
+        .work-item-header {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+        
+        .work-title { font-size: 1.1rem; font-weight: 600; color: #f5f5f5; margin: 0; }
+        .work-client { font-size: 0.8rem; color: #888; margin: 0; }
+        
+        .work-item-meta {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 0.85rem;
+          color: #aaa;
+          margin-top: 2px;
+        }
+        .meta-price { color: #ffd700; font-weight: 500; }
+        .meta-divider { color: rgba(255,255,255,0.2); }
         
         .status-badge {
           display: inline-flex;
           align-items: center;
-          gap: 6px;
-          padding: 4px 10px;
+          gap: 4px;
+          padding: 3px 8px;
           border-radius: 50px;
-          font-size: 0.75rem;
+          font-size: 0.7rem;
           font-weight: 600;
         }
         .status-ongoing { background: rgba(255, 215, 0, 0.1); color: #ffd700; border: 1px solid rgba(255, 215, 0, 0.2); }
         .status-finished { background: rgba(0, 200, 100, 0.1); color: #00c864; border: 1px solid rgba(0, 200, 100, 0.2); }
         
-        .work-details {
+        .text-success { color: #00c864 !important; }
+        .text-danger { color: #ff4444 !important; }
+
+        .compact-progress {
+          margin-top: 6px;
           display: flex;
           flex-direction: column;
-          gap: 12px;
-          flex: 1;
+          gap: 6px;
+          background: rgba(0,0,0,0.2);
+          padding: 10px 12px;
+          border-radius: 8px;
+          border: 1px solid rgba(255,255,255,0.02);
         }
-        
-        .detail-item {
+        .compact-progress-header {
           display: flex;
           justify-content: space-between;
-          align-items: center;
-          font-size: 0.9rem;
-        }
-        .detail-item.full-width {
-          flex-direction: column;
-          align-items: flex-start;
-          gap: 8px;
+          font-size: 0.8rem;
+          color: #888;
         }
         
-        .detail-label { color: #888; }
-        .detail-value { font-weight: 500; color: #ccc; }
-        .detail-value.highlight { color: #ffd700; }
-        
-        .installment-progress {
-          width: 100%;
-          display: flex;
-          align-items: center;
-          gap: 12px;
-        }
         .progress-bar {
-          flex: 1;
+          width: 100%;
           height: 6px;
           background: rgba(255,255,255,0.1);
           border-radius: 4px;
           overflow: hidden;
         }
+        .progress-bar.thin { height: 4px; }
         .progress-fill {
           height: 100%;
           background: #ffd700;
           border-radius: 4px;
         }
-        .progress-text {
+        
+        .work-item-actions {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+        
+        .action-group {
+          display: flex;
+          gap: 8px;
+        }
+
+        .payment-btn.compact-btn {
+          padding: 6px 12px;
           font-size: 0.8rem;
-          color: #888;
-          min-width: 60px;
-          text-align: right;
         }
-        
-        .work-actions {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding-top: 16px;
-          border-top: 1px solid rgba(255,255,255,0.05);
-        }
-        
-        .payment-btn {
-          padding: 6px 14px;
+          padding: 8px 16px;
           font-size: 0.85rem;
-          display: flex;
+          font-weight: 600;
+          display: inline-flex;
           align-items: center;
-          gap: 6px;
-          border-color: rgba(0, 200, 100, 0.3);
+          gap: 8px;
+          border-radius: 50px;
+          border: 1px solid rgba(0, 200, 100, 0.4);
           color: #00c864;
           background: rgba(0, 200, 100, 0.05);
+          cursor: pointer;
+          transition: all 0.3s ease;
         }
         .payment-btn:hover {
-          background: rgba(0, 200, 100, 0.15);
-          border-color: rgba(0, 200, 100, 0.5);
+          background: rgba(0, 200, 100, 0.2);
+          border-color: rgba(0, 200, 100, 0.8);
+          transform: translateY(-2px);
         }
         .payment-icon { font-size: 1rem; }
         
+        .icon-btn {
+          padding: 8px;
+          border-radius: 8px;
+          border: 1px solid transparent;
+          background: rgba(255,255,255,0.05);
+          color: #aaa;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.2s ease;
+        }
+        .edit-btn:hover { color: #fff; background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.3); }
+        .delete-btn:hover { color: #ff4444; background: rgba(255,60,60,0.15); border-color: rgba(255,60,60,0.4); }
         .empty-state {
           grid-column: 1 / -1;
           text-align: center;
@@ -808,14 +855,29 @@ export default function AdminWork() {
           border: 1px dashed rgba(255,255,255,0.1);
         }
 
+        @media (max-width: 768px) {
+          .work-list-item {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 16px;
+          }
+          .work-item-actions {
+            justify-content: space-between;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            padding-top: 16px;
+          }
+        }
+
         /* Modal Styles */
         .modal-overlay {
           position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px);
-          display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px;
+          display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 16px;
         }
         .modal-content {
           width: 100%; max-width: 600px; padding: 32px; border-radius: 24px;
           max-height: 90vh; overflow-y: auto;
+          background: rgba(15, 15, 15, 0.95);
+          box-shadow: 0 24px 48px rgba(0,0,0,0.5);
         }
         .modal-header {
           display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;
@@ -827,12 +889,13 @@ export default function AdminWork() {
         .form-group { display: flex; flex-direction: column; gap: 8px; }
         .form-group label { font-size: 0.9rem; color: #aaa; font-weight: 500; }
         .form-group input, .form-group select, .form-group textarea {
-          padding: 12px 16px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);
+          padding: 12px 16px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1);
           border-radius: 12px; color: #fff; font-size: 1rem; transition: all 0.3s ease;
           font-family: 'Inter', sans-serif;
         }
         .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
           outline: none; border-color: rgba(255,215,0,0.5); box-shadow: 0 0 0 2px rgba(255,215,0,0.1);
+          background: rgba(0,0,0,0.6);
         }
         
         .checkbox-group {
@@ -884,8 +947,12 @@ export default function AdminWork() {
         }
         
         @media (max-width: 600px) {
-          .form-row { flex-direction: column; gap: 20px; }
-          .modal-content { padding: 24px; }
+          .form-row { flex-direction: column; gap: 16px; }
+          .modal-content { padding: 24px 20px; }
+          .work-actions { flex-direction: column; align-items: stretch; gap: 12px; }
+          .payment-btn { justify-content: center; }
+          .action-group { justify-content: space-between; }
+          .icon-btn { flex: 1; }
         }
 
         .payment-modal {
@@ -893,9 +960,75 @@ export default function AdminWork() {
           border-top: 4px solid #ffd700;
         }
         .price-input {
-          font-size: 1.2rem !important;
+          font-size: 1.05rem !important;
           color: #ffd700 !important;
-          font-weight: 600;
+          font-weight: 500;
+        }
+        
+        .history-section {
+          background: rgba(0,0,0,0.2);
+          border-radius: 12px;
+          padding: 16px;
+          border: 1px solid rgba(255,255,255,0.05);
+        }
+        .history-section h4 {
+          font-size: 0.95rem;
+          color: #aaa;
+          margin-bottom: 12px;
+        }
+        .history-list {
+          max-height: 180px;
+          overflow-y: auto;
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+        }
+        .history-item {
+          display: flex;
+          justify-content: space-between;
+          padding: 10px 8px;
+          transition: background 0.2s;
+          border-radius: 6px;
+        }
+        .history-item:hover { background: rgba(255,255,255,0.02); }
+        .history-date { color: #888; font-size: 0.85rem; }
+        .history-amount { color: #00c864; font-weight: 600; }
+
+        .summary-box {
+          background: rgba(20,20,20,0.8);
+          padding: 16px;
+          border-radius: 12px;
+          border: 1px dashed rgba(255,215,0,0.2);
+          margin-top: 8px;
+        }
+        .summary-row {
+          display: flex;
+          justify-content: space-between;
+          margin-bottom: 12px;
+          font-size: 0.9rem;
+          color: #aaa;
+          align-items: center;
+        }
+        .summary-total { color: #fff; font-weight: 600; font-size: 0.95rem; }
+        .summary-paid { color: #00c864; font-weight: 500; }
+        .summary-sisa {
+          border-top: 1px dashed rgba(255,255,255,0.1);
+          padding-top: 12px;
+          margin-bottom: 0;
+          color: #fff;
+        }
+        .summary-deficit { color: #ff4444; font-weight: 600; font-size: 1rem; }
+
+        .premium-btn {
+          background: linear-gradient(135deg, #111, #222);
+          border: 1px solid rgba(255,215,0,0.5);
+          color: #ffd700;
+          transition: all 0.3s ease;
+        }
+        .premium-btn:hover {
+          background: linear-gradient(135deg, #222, #333);
+          border-color: #ffd700;
+          box-shadow: 0 4px 12px rgba(255,215,0,0.15);
         }
 
         .confirm-dialog {
@@ -908,6 +1041,7 @@ export default function AdminWork() {
           flex-direction: column;
           align-items: center;
           gap: 16px;
+          background: rgba(20, 20, 20, 0.98);
         }
         .confirm-icon {
           width: 64px;
