@@ -334,20 +334,18 @@ export default function AdminWork() {
                 </div>
                 <p className="work-client" style={{ marginTop: 4 }}>{work.client_name ? `Client: ${work.client_name}` : 'No Client Name'}</p>
                 
-                {work.installment_features && (
-                  <div className="compact-progress" style={{ marginTop: 8 }}>
-                    <div className="compact-progress-header">
-                      <span>Terbayar: <strong className="text-success">{formatCurrency(work.installments_paid)}</strong></span>
-                      <span>Sisa: <strong className="text-danger">{formatCurrency(Math.max(0, work.price - work.installments_paid))}</strong></span>
-                    </div>
-                    <div className="progress-bar thin">
-                      <div
-                        className="progress-fill"
-                        style={{ width: `${Math.min(100, Math.max(0, (work.installments_paid / Math.max(1, work.price)) * 100))}%` }}
-                      ></div>
-                    </div>
+                <div className="compact-progress" style={{ marginTop: 8 }}>
+                  <div className="compact-progress-header">
+                    <span>Terbayar: <strong className="text-success">{formatCurrency(work.installments_paid)}</strong></span>
+                    <span>Sisa: <strong className="text-danger">{formatCurrency(Math.max(0, work.price - work.installments_paid))}</strong></span>
                   </div>
-                )}
+                  <div className="progress-bar thin">
+                    <div
+                      className="progress-fill"
+                      style={{ width: `${Math.min(100, Math.max(0, (work.installments_paid / Math.max(1, work.price)) * 100))}%` }}
+                    ></div>
+                  </div>
+                </div>
               </div>
 
               {/* Right Side: Actions (Stop propagation to prevent card click) */}
@@ -383,7 +381,7 @@ export default function AdminWork() {
           <div className="modal-content glass-card">
             <div className="modal-header">
               <h2>{editingId ? 'Edit Work' : 'Add New Work'}</h2>
-              <button className="icon-btn" onClick={handleCloseModal}><X size={24} /></button>
+              <button className="icon-btn close-btn" onClick={handleCloseModal} title="Close Modal"><X size={24} /></button>
             </div>
 
             <form onSubmit={handleSubmit} className="modal-form">
@@ -523,7 +521,7 @@ export default function AdminWork() {
                 <h2 style={{ fontSize: '1.3rem', marginBottom: 4 }}>Manage Payment</h2>
                 <span style={{ color: '#ffd700', fontSize: '0.9rem', fontWeight: 500 }}>{paymentData.project_name}</span>
               </div>
-              <button className="icon-btn" onClick={handleClosePaymentModal}><X size={24} /></button>
+              <button className="icon-btn close-btn" onClick={handleClosePaymentModal} title="Close Modal"><X size={24} /></button>
             </div>
 
             <form onSubmit={handlePaymentSubmit} className="modal-form" style={{ gap: 16 }}>
@@ -565,81 +563,64 @@ export default function AdminWork() {
                 </div>
               </div>
 
-              <div className="form-group checkbox-group" style={{ marginTop: 8, padding: '10px 14px' }}>
-                <label className="checkbox-label" style={{ fontSize: '0.9rem' }}>
-                  <input
-                    type="checkbox"
-                    checked={paymentData.installment_features}
-                    onChange={e => setPaymentData({ ...paymentData, installment_features: e.target.checked })}
-                  />
-                  Enable Installment Tracking (Cicilan)
-                </label>
-              </div>
+              <div className="installments-section" style={{ padding: '4px 0 0 0' }}>
+                
+                <div className="form-group" style={{ width: '100%', marginBottom: 16 }}>
+                  <label style={{ color: '#00c864' }}>+ Input Pembayaran Baru (Rp)</label>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <input
+                      type="number"
+                      min="0"
+                      step="1000"
+                      value={paymentData.new_payment_amount || ''}
+                      onChange={e => setPaymentData({ ...paymentData, new_payment_amount: parseFloat(e.target.value) || 0 })}
+                      className="price-input"
+                      placeholder="Contoh: 1000000"
+                      style={{ flex: 1, borderColor: paymentData.new_payment_amount > 0 ? '#00c864' : 'rgba(255,255,255,0.1)' }}
+                    />
+                  </div>
+                </div>
 
-              {paymentData.installment_features && (
-                <div className="installments-section" style={{ padding: '4px 0 0 0' }}>
-                  
-                  <div className="form-group" style={{ width: '100%', marginBottom: 16 }}>
-                    <label style={{ color: '#00c864' }}>+ Input Pembayaran Baru (Rp)</label>
-                    <div style={{ display: 'flex', gap: 8 }}>
-                      <input
-                        type="number"
-                        min="0"
-                        step="1000"
-                        value={paymentData.new_payment_amount || ''}
-                        onChange={e => setPaymentData({ ...paymentData, new_payment_amount: parseFloat(e.target.value) || 0 })}
-                        className="price-input"
-                        placeholder="Contoh: 1000000"
-                        style={{ flex: 1, borderColor: paymentData.new_payment_amount > 0 ? '#00c864' : 'rgba(255,255,255,0.1)' }}
-                      />
+                {paymentData.payment_history && paymentData.payment_history.length > 0 && (
+                  <div className="history-section">
+                    <h4>Histori Pembayaran</h4>
+                    <div className="history-list">
+                      {paymentData.payment_history.map((hist, idx) => (
+                        <div 
+                          key={idx} 
+                          className="history-item"
+                          style={{ borderBottom: idx < paymentData.payment_history.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none' }}
+                        >
+                          <span className="history-date">{formatDate(hist.date)}</span>
+                          <span className="history-amount">+ {formatCurrency(hist.amount)}</span>
+                        </div>
+                      ))}
                     </div>
                   </div>
-
-                  {paymentData.payment_history && paymentData.payment_history.length > 0 && (
-                    <div className="history-section">
-                      <h4>Histori Pembayaran</h4>
-                      <div className="history-list">
-                        {paymentData.payment_history.map((hist, idx) => (
-                          <div 
-                            key={idx} 
-                            className="history-item"
-                            style={{ borderBottom: idx < paymentData.payment_history.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none' }}
-                          >
-                            <span className="history-date">{formatDate(hist.date)}</span>
-                            <span className="history-amount">+ {formatCurrency(hist.amount)}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
+                )}
+              </div>
 
               <div className="summary-box">
                 <div className="summary-row">
                   <span>Total Harga Project:</span>
                   <span className="summary-total">{formatCurrency(paymentData.price)}</span>
                 </div>
-                {paymentData.installment_features && (
-                  <>
-                    <div className="summary-row">
-                      <span>Total Terbayar:</span>
-                      <span className="summary-paid">{formatCurrency(paymentData.installments_paid)}</span>
-                    </div>
-                    {paymentData.new_payment_amount > 0 && (
-                      <div className="summary-row" style={{ color: '#00c864', fontSize: '0.85rem', marginTop: '-8px' }}>
-                        <span>+ Pembayaran Baru:</span>
-                        <span style={{ fontWeight: 600 }}>{formatCurrency(paymentData.new_payment_amount)}</span>
-                      </div>
-                    )}
-                    <div className="summary-row summary-sisa">
-                      <span>Sisa Pembayaran:</span>
-                      <span className="summary-deficit">
-                        {formatCurrency(Math.max(0, paymentData.price - (paymentData.installments_paid + (paymentData.new_payment_amount || 0))))}
-                      </span>
-                    </div>
-                  </>
+                <div className="summary-row">
+                  <span>Total Terbayar:</span>
+                  <span className="summary-paid">{formatCurrency(paymentData.installments_paid)}</span>
+                </div>
+                {paymentData.new_payment_amount > 0 && (
+                  <div className="summary-row" style={{ color: '#00c864', fontSize: '0.85rem', marginTop: '-8px' }}>
+                    <span>+ Pembayaran Baru:</span>
+                    <span style={{ fontWeight: 600 }}>{formatCurrency(paymentData.new_payment_amount)}</span>
+                  </div>
                 )}
+                <div className="summary-row summary-sisa">
+                  <span>Sisa Pembayaran:</span>
+                  <span className="summary-deficit">
+                    {formatCurrency(Math.max(0, paymentData.price - (paymentData.installments_paid + (paymentData.new_payment_amount || 0))))}
+                  </span>
+                </div>
               </div>
 
               <div className="modal-actions" style={{ paddingTop: 16, marginTop: 4 }}>
@@ -845,6 +826,18 @@ export default function AdminWork() {
         }
         .edit-btn:hover { color: #fff; background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.3); }
         .delete-btn:hover { color: #ff4444; background: rgba(255,60,60,0.15); border-color: rgba(255,60,60,0.4); }
+        .close-btn {
+          padding: 10px;
+          border-radius: 12px;
+          background: rgba(255, 60, 60, 0.08); /* distinct reddish box */
+          color: #ff6b6b;
+          border: 1px solid rgba(255, 60, 60, 0.15);
+        }
+        .close-btn:hover {
+          background: rgba(255, 60, 60, 0.2);
+          color: #fff;
+          border-color: rgba(255, 60, 60, 0.4);
+        }
         .empty-state {
           grid-column: 1 / -1;
           text-align: center;
@@ -952,7 +945,16 @@ export default function AdminWork() {
           .work-actions { flex-direction: column; align-items: stretch; gap: 12px; }
           .payment-btn { justify-content: center; }
           .action-group { justify-content: space-between; }
-          .icon-btn { flex: 1; }
+          
+          /* Only stretch the edit/delete icon buttons in the list, not the modal close button */
+          .work-item-actions .icon-btn { flex: 1; }
+          
+          .close-btn { 
+            flex: none; 
+            width: 44px; /* Fixed touch target size on mobile */
+            height: 44px;
+            padding: 10px;
+          }
         }
 
         .payment-modal {
