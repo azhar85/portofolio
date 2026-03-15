@@ -31,9 +31,9 @@ export default function Contact() {
         </div>
         <div className="contact-grid">
           <div className="contact-info">
-            <div className="contact-item glass-card"><Mail size={24} color="#ffd700" /><div><h4>Email</h4><p>hello@ahmadazhar.com</p></div></div>
-            <div className="contact-item glass-card"><MapPin size={24} color="#ffd700" /><div><h4>Location</h4><p>Indonesia</p></div></div>
-            <div className="contact-item glass-card"><Phone size={24} color="#ffd700" /><div><h4>Phone</h4><p>Available on request</p></div></div>
+            <div className="contact-item glass-card"><Mail size={24} color="#ffd700" /><div><h4>Email</h4><p>ahmadazhar855@gmail.com</p></div></div>
+            <div className="contact-item glass-card"><MapPin size={24} color="#ffd700" /><div><h4>Location</h4><p>Indragiri Hilir, Riau, Indonesia</p></div></div>
+            <div className="contact-item glass-card"><Phone size={24} color="#ffd700" /><div><h4>Phone/Whatsapp</h4><p>0822-7908-2064</p></div></div>
           </div>
           <form onSubmit={handleSubmit} className="contact-form glass-card">
             <div className="form-group"><label>Name</label><input type="text" placeholder="Your name" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} required /></div>
