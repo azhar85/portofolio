@@ -3,6 +3,8 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Plus, Edit2, Trash2, X, CheckCircle, Clock } from 'lucide-react';
 import ImageUpload from '@/components/ImageUpload';
+import TechStackPicker from '@/components/TechStackPicker';
+import { resolveTechIconFromValue } from '@/lib/skill-icons';
 
 export default function AdminWork() {
   const [workList, setWorkList] = useState([]);
@@ -20,7 +22,7 @@ export default function AdminWork() {
     project_name: '',
     description: '',
     image_url: '',
-    tech_stack: '', // Store as comma-separated string in form, convert to array on submit
+    tech_stack: [],
     price: 0,
     deadline: '',
     installments_paid: 0,
@@ -63,7 +65,7 @@ export default function AdminWork() {
         project_name: work.project_name || '',
         description: work.description || '',
         image_url: work.image_url || '',
-        tech_stack: work.tech_stack ? work.tech_stack.join(', ') : '',
+        tech_stack: (work.tech_stack || []).map((tech) => resolveTechIconFromValue(tech)?.value || tech),
         price: work.price || 0,
         deadline: work.deadline || '',
         installments_paid: work.installments_paid || 0,
@@ -82,7 +84,7 @@ export default function AdminWork() {
         project_name: '',
         description: '',
         image_url: '',
-        tech_stack: '',
+        tech_stack: [],
         price: 0,
         deadline: '',
         installments_paid: 0,
@@ -137,14 +139,9 @@ export default function AdminWork() {
   async function handleSubmit(e) {
     e.preventDefault();
     try {
-      // Process tech_stack string into an array
-      const techStackArray = formData.tech_stack
-        ? formData.tech_stack.split(',').map(item => item.trim()).filter(Boolean)
-        : [];
-
       const workData = {
         ...formData,
-        tech_stack: techStackArray,
+        tech_stack: (formData.tech_stack || []).map((tech) => resolveTechIconFromValue(tech)?.value || tech),
         deadline: formData.deadline ? formData.deadline : null
       };
 
@@ -413,11 +410,10 @@ export default function AdminWork() {
                 </div>
                 <div className="form-group">
                   <label>Tech Stack</label>
-                  <input
-                    type="text"
-                    value={formData.tech_stack}
-                    onChange={e => setFormData({ ...formData, tech_stack: e.target.value })}
-                    placeholder="E.g., Next.js, React, Supabase"
+                  <TechStackPicker
+                    value={formData.tech_stack || []}
+                    onChange={(tech_stack) => setFormData({ ...formData, tech_stack })}
+                    placeholder="Select tech for this ongoing project"
                   />
                 </div>
               </div>

@@ -3,25 +3,37 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Plus, Pencil, Trash2, X, Save, Star } from 'lucide-react';
 import ImageUpload from '@/components/ImageUpload';
+import TechBadge from '@/components/TechBadge';
+import TechStackPicker from '@/components/TechStackPicker';
+import { resolveTechIconFromValue } from '@/lib/skill-icons';
 
 export default function AdminProjects() {
   const [items, setItems] = useState([]);
   const [editing, setEditing] = useState(null);
-  const [form, setForm] = useState({ title:'', description:'', image_url:'', live_url:'', repo_url:'', tech_stack:'', featured:false, order:0 });
+  const [form, setForm] = useState({ title:'', description:'', image_url:'', live_url:'', repo_url:'', tech_stack:[], featured:false, order:0 });
 
   const load = async () => { const { data } = await supabase.from('projects').select('*').order('order'); setItems(data||[]); };
   useEffect(() => { load(); }, []);
 
   const save = async () => {
-    const payload = { ...form, tech_stack: typeof form.tech_stack === 'string' ? form.tech_stack.split(',').map(s=>s.trim()).filter(Boolean) : form.tech_stack };
+    const payload = {
+      ...form,
+      tech_stack: (form.tech_stack || []).map((item) => resolveTechIconFromValue(item)?.value || item),
+    };
     if (editing?.id) { await supabase.from('projects').update(payload).eq('id', editing.id); }
     else { await supabase.from('projects').insert([payload]); }
     setEditing(null); load();
   };
 
   const remove = async (id) => { if(confirm('Delete?')) { await supabase.from('projects').delete().eq('id',id); load(); } };
-  const openEdit = (item) => { setEditing(item); setForm({...item, tech_stack: (item.tech_stack||[]).join(', ')}); };
-  const openNew = () => { setEditing({}); setForm({ title:'', description:'', image_url:'', live_url:'', repo_url:'', tech_stack:'', featured:false, order:0 }); };
+  const openEdit = (item) => {
+    setEditing(item);
+    setForm({
+      ...item,
+      tech_stack: (item.tech_stack || []).map((tech) => resolveTechIconFromValue(tech)?.value || tech),
+    });
+  };
+  const openNew = () => { setEditing({}); setForm({ title:'', description:'', image_url:'', live_url:'', repo_url:'', tech_stack:[], featured:false, order:0 }); };
 
   return (
     <div>
@@ -39,7 +51,7 @@ export default function AdminProjects() {
               <div key={f} className="fg"><label>{f.replace(/_/g,' ')}</label><input value={form[f]||''} onChange={e=>setForm({...form,[f]:e.target.value})} /></div>
             ))}
             <div className="fg"><label>Description</label><textarea rows={3} value={form.description||''} onChange={e=>setForm({...form,description:e.target.value})} /></div>
-            <div className="fg"><label>Tech Stack (comma separated)</label><input value={form.tech_stack||''} onChange={e=>setForm({...form,tech_stack:e.target.value})} placeholder="React, Node.js, Supabase" /></div>
+            <div className="fg"><label>Tech Stack</label><TechStackPicker value={form.tech_stack || []} onChange={(tech_stack) => setForm({...form, tech_stack})} /></div>
             <div className="fg"><label>Order</label><input type="number" value={form.order||0} onChange={e=>setForm({...form,order:parseInt(e.target.value)||0})} /></div>
             <div className="fg" style={{display:'flex',alignItems:'center',gap:8}}><input type="checkbox" checked={form.featured} onChange={e=>setForm({...form,featured:e.target.checked})} /><label style={{marginBottom:0}}>Featured Project</label></div>
             <button onClick={save} className="btn btn-primary"><Save size={18}/>Save</button>
@@ -56,7 +68,7 @@ export default function AdminProjects() {
                 {item.featured && <Star size={16} color="#ffd700" fill="#ffd700"/>}
               </div>
               <p style={{color:'#888',fontSize:'.85rem',marginBottom:12,flex:1}}>{item.description?.substring(0,100)}</p>
-              <div style={{display:'flex',flexWrap:'wrap',gap:4,marginBottom:12}}>{(item.tech_stack||[]).map((t,i)=><span key={i} className="badge badge-yellow">{t}</span>)}</div>
+              <div style={{display:'flex',flexWrap:'wrap',gap:6,marginBottom:12}}>{(item.tech_stack||[]).map((t,i)=><TechBadge key={`${item.id}-${i}-${t}`} value={t} size="sm" />)}</div>
               <div style={{display:'flex',gap:8}}>
                 <button onClick={()=>openEdit(item)} className="act-btn"><Pencil size={16}/></button>
                 <button onClick={()=>remove(item.id)} className="act-btn act-del"><Trash2 size={16}/></button>

@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { ExternalLink, Github, Star, Clock, CheckCircle } from 'lucide-react';
+import { ExternalLink, Github, Star, Clock } from 'lucide-react';
+import TechBadge from '@/components/TechBadge';
 
 const defaultProjects = [
   {
@@ -44,6 +45,7 @@ const defaultProjects = [
 
 export default function Projects({ projects, activeWork = [] }) {
   const [isVisible, setIsVisible] = useState(false);
+  const [activeCard, setActiveCard] = useState(null);
   const sectionRef = useRef(null);
 
   const data = projects && projects.length > 0 ? projects : defaultProjects;
@@ -56,6 +58,10 @@ export default function Projects({ projects, activeWork = [] }) {
     if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, []);
+
+  const toggleCard = (key) => {
+    setActiveCard((current) => (current === key ? null : key));
+  };
 
   return (
     <section id="projects" className="section" ref={sectionRef}>
@@ -73,44 +79,49 @@ export default function Projects({ projects, activeWork = [] }) {
 
             <div className={`projects-grid ${isVisible ? 'projects-visible' : ''}`}>
               {activeWork.map((work, i) => (
-                <div key={work.id} className="project-card glass-card work-featured" style={{ animationDelay: `${i * 0.15}s` }}>
-                  <div className="project-image">
-                    {work.image_url ? (
-                      <img src={work.image_url} alt={work.project_name} className="dimmed-img" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                    ) : (
-                      <div className="project-image-placeholder dimmed-img">
-                        <span className="project-image-icon">{'</>'}</span>
+                <div key={work.id} className="project-slot" style={{ animationDelay: `${i * 0.15}s` }}>
+                  <div
+                    className={`project-card glass-card work-featured ${activeCard === `work-${work.id}` ? 'project-card-active' : ''}`}
+                    onClick={() => toggleCard(`work-${work.id}`)}
+                  >
+                    <div className="project-image">
+                      {work.image_url ? (
+                        <img src={work.image_url} alt={work.project_name} className="dimmed-img" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      ) : (
+                        <div className="project-image-placeholder dimmed-img">
+                          <span className="project-image-icon">{'</>'}</span>
+                        </div>
+                      )}
+                      <div className="ongoing-center-badge">
+                        <Clock size={18} />
+                        On Going
                       </div>
-                    )}
-                    <div className="ongoing-center-badge">
-                      <Clock size={18} />
-                      On Going
-                    </div>
-                  </div>
-
-                  <div className="project-content">
-                    <h3 className="project-title">{work.project_name}</h3>
-                    <p className="project-desc">{work.description}</p>
-
-                    <div className="project-tags">
-                      {(work.tech_stack || []).map((tech, j) => (
-                        <span key={j} className="project-tag">{tech}</span>
-                      ))}
                     </div>
 
-                    <div className="project-links">
-                      {work.live_url && work.live_url !== '#' && (
-                        <a href={work.live_url} target="_blank" rel="noopener noreferrer" className="project-link">
-                          <ExternalLink size={16} />
-                          Live Demo
-                        </a>
-                      )}
-                      {work.repo_url && work.repo_url !== '#' && (
-                        <a href={work.repo_url} target="_blank" rel="noopener noreferrer" className="project-link">
-                          <Github size={16} />
-                          Source Code
-                        </a>
-                      )}
+                    <div className="project-content">
+                      <h3 className="project-title">{work.project_name}</h3>
+                      <p className="project-desc">{work.description}</p>
+
+                      <div className="project-tags">
+                        {(work.tech_stack || []).map((tech, j) => (
+                          <TechBadge key={`${work.id}-${j}-${tech}`} value={tech} />
+                        ))}
+                      </div>
+
+                      <div className="project-links">
+                        {work.live_url && work.live_url !== '#' && (
+                          <a href={work.live_url} target="_blank" rel="noopener noreferrer" className="project-link">
+                            <ExternalLink size={16} />
+                            Live Demo
+                          </a>
+                        )}
+                        {work.repo_url && work.repo_url !== '#' && (
+                          <a href={work.repo_url} target="_blank" rel="noopener noreferrer" className="project-link">
+                            <Github size={16} />
+                            Source Code
+                          </a>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -121,50 +132,51 @@ export default function Projects({ projects, activeWork = [] }) {
 
         <div className={`projects-grid ${isVisible ? 'projects-visible' : ''}`}>
           {data.map((project, i) => (
-            <div
-              key={i}
-              className={`project-card glass-card ${project.featured ? 'project-featured' : ''}`}
-              style={{ animationDelay: `${i * 0.15}s` }}
-            >
-              <div className="project-image">
-                {project.image_url ? (
-                  <img src={project.image_url} alt={project.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                ) : (
-                  <div className="project-image-placeholder">
-                    <span className="project-image-icon">{'</>'}</span>
-                  </div>
-                )}
-                {project.featured && (
-                  <div className="project-badge">
-                    <Star size={12} />
-                    Featured
-                  </div>
-                )}
-              </div>
-
-              <div className="project-content">
-                <h3 className="project-title">{project.title}</h3>
-                <p className="project-desc">{project.description}</p>
-
-                <div className="project-tags">
-                  {(project.tech_stack || []).map((tech, j) => (
-                    <span key={j} className="project-tag">{tech}</span>
-                  ))}
+            <div key={i} className="project-slot" style={{ animationDelay: `${i * 0.15}s` }}>
+              <div
+                className={`project-card glass-card ${project.featured ? 'project-featured' : ''} ${activeCard === `project-${i}` ? 'project-card-active' : ''}`}
+                onClick={() => toggleCard(`project-${i}`)}
+              >
+                <div className="project-image">
+                  {project.image_url ? (
+                    <img src={project.image_url} alt={project.title} className="project-main-image" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  ) : (
+                    <div className="project-image-placeholder">
+                      <span className="project-image-icon">{'</>'}</span>
+                    </div>
+                  )}
+                  {project.featured && (
+                    <div className="project-badge">
+                      <Star size={12} />
+                      Featured
+                    </div>
+                  )}
                 </div>
 
-                <div className="project-links">
-                  {project.live_url && project.live_url !== '#' && (
-                    <a href={project.live_url} target="_blank" rel="noopener noreferrer" className="project-link">
-                      <ExternalLink size={16} />
-                      Live Demo
-                    </a>
-                  )}
-                  {project.repo_url && project.repo_url !== '#' && (
-                    <a href={project.repo_url} target="_blank" rel="noopener noreferrer" className="project-link">
-                      <Github size={16} />
-                      Source Code
-                    </a>
-                  )}
+                <div className="project-content">
+                  <h3 className="project-title">{project.title}</h3>
+                  <p className="project-desc">{project.description}</p>
+
+                  <div className="project-tags">
+                    {(project.tech_stack || []).map((tech, j) => (
+                      <TechBadge key={`${project.title}-${j}-${tech}`} value={tech} />
+                    ))}
+                  </div>
+
+                  <div className="project-links">
+                    {project.live_url && project.live_url !== '#' && (
+                      <a href={project.live_url} target="_blank" rel="noopener noreferrer" className="project-link">
+                        <ExternalLink size={16} />
+                        Live Demo
+                      </a>
+                    )}
+                    {project.repo_url && project.repo_url !== '#' && (
+                      <a href={project.repo_url} target="_blank" rel="noopener noreferrer" className="project-link">
+                        <Github size={16} />
+                        Source Code
+                      </a>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -176,10 +188,15 @@ export default function Projects({ projects, activeWork = [] }) {
         .projects-grid {
           display: grid;
           grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-          gap: 32px;
+          gap: 24px;
         }
-        .projects-visible .project-card,
-        .projects-visible .work-item {
+        .project-slot {
+          opacity: 0;
+          position: relative;
+          display: flex;
+          padding: 10px 0 16px;
+        }
+        .projects-visible .project-slot {
           animation: fadeInUp 0.6s ease forwards;
         }
         @keyframes fadeInUp {
@@ -187,12 +204,25 @@ export default function Projects({ projects, activeWork = [] }) {
           to { opacity: 1; transform: translateY(0); }
         }
         .project-card {
-          opacity: 0;
           overflow: hidden;
           display: flex;
           flex-direction: column;
+          width: 100%;
           border-radius: 16px;
-          transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease;
+          transition: transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.28s ease, border-color 0.28s ease;
+          transform-origin: center;
+          cursor: pointer;
+          position: relative;
+          z-index: 1;
+        }
+        .project-card:hover {
+          transform: translateY(-6px) scale(1.015);
+        }
+        .project-card-active {
+          transform: translateY(-8px) scale(1.025);
+          box-shadow: 0 20px 36px rgba(0, 0, 0, 0.32);
+          border-color: rgba(255,215,0,0.32);
+          z-index: 3;
         }
         .project-featured, .work-featured {
           border-color: rgba(255,215,0,0.2);
@@ -215,7 +245,7 @@ export default function Projects({ projects, activeWork = [] }) {
           width: 100%;
           height: 100%;
           object-fit: cover;
-          transition: filter 0.5s ease;
+          transition: filter 0.5s ease, transform 0.35s ease;
         }
         .project-image-placeholder {
           display: flex;
@@ -253,6 +283,11 @@ export default function Projects({ projects, activeWork = [] }) {
         }
         .project-card:hover .dimmed-img {
           filter: brightness(0.9);
+        }
+        .project-card:hover .project-main-image,
+        .project-card-active .project-main-image,
+        .project-card-active .dimmed-img {
+          transform: scale(1.04);
         }
         .ongoing-center-badge {
           position: absolute;
@@ -300,25 +335,18 @@ export default function Projects({ projects, activeWork = [] }) {
           gap: 8px;
           margin-bottom: 24px;
         }
-        .project-tag {
-          padding: 6px 14px;
-          background: rgba(255,255,255,0.04);
-          border: 1px solid rgba(255,255,255,0.08);
-          border-radius: 50px; /* Pill shape */
-          font-size: 0.75rem;
-          color: #bbb;
-          font-family: 'Inter', sans-serif;
-          font-weight: 500;
-          transition: all 0.2s ease;
-        }
-        .project-card:hover .project-tag {
+        .project-card:hover :global(.tech-badge) {
           background: rgba(255,215,0,0.08);
           border-color: rgba(255,215,0,0.2);
-          color: #ffd700;
+        }
+        .project-card-active :global(.tech-badge) {
+          background: rgba(255,215,0,0.1);
+          border-color: rgba(255,215,0,0.24);
         }
         .project-links {
           display: flex;
           gap: 20px;
+          flex-wrap: wrap;
           padding-top: 20px;
           border-top: 1px solid rgba(255,255,255,0.08);
         }
@@ -341,7 +369,7 @@ export default function Projects({ projects, activeWork = [] }) {
         
         /* Ongoing Work Styles */
         .ongoing-work-section {
-          margin-bottom: 64px;
+          margin-bottom: 40px;
         }
         .sub-title {
           display: flex;
@@ -355,6 +383,14 @@ export default function Projects({ projects, activeWork = [] }) {
         @media (max-width: 768px) {
           .projects-grid {
             grid-template-columns: 1fr;
+            gap: 18px;
+          }
+          .project-slot {
+            padding: 6px 0 12px;
+          }
+          .project-card:hover,
+          .project-card-active {
+            transform: translateY(-4px) scale(1.01);
           }
         }
       `}</style>
