@@ -44,36 +44,36 @@ export default function AdminLayout({ children }) {
   };
 
   if (pathname === '/admin/login') return children;
-  if (loading) return <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',background:'#0a0a0a',color:'#ffd700',fontSize:'1.2rem'}}>Loading...</div>;
+  if (loading) return <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0a0a0a', color: '#ffd700', fontSize: '1.2rem' }}>Loading...</div>;
 
   return (
     <div className="admin-layout">
       <aside className={`admin-sidebar ${sidebarOpen ? 'sidebar-open' : ''}`}>
         <div className="sidebar-header">
-          <span className="sidebar-logo"><span style={{color:'#ffd700'}}>&lt;</span>AZ<span style={{color:'#ffd700'}}>/&gt;</span></span>
+
           <span className="sidebar-title">Admin</span>
-          <button className="sidebar-close" onClick={()=>setSidebarOpen(false)}><X size={20}/></button>
+          <button className="sidebar-close" onClick={() => setSidebarOpen(false)}><X size={20} /></button>
         </div>
         <nav className="sidebar-nav">
           {sidebarLinks.map(link => {
             const Icon = link.icon;
             const active = pathname === link.href;
             return (
-              <a key={link.href} href={link.href} className={`sidebar-link ${active?'sidebar-link-active':''}`} onClick={()=>setSidebarOpen(false)}>
-                <Icon size={18}/>{link.label}
+              <a key={link.href} href={link.href} className={`sidebar-link ${active ? 'sidebar-link-active' : ''}`} onClick={() => setSidebarOpen(false)}>
+                <Icon size={18} />{link.label}
               </a>
             );
           })}
         </nav>
         <div className="sidebar-footer">
           <a href="/" className="sidebar-link" target="_blank">View Portfolio</a>
-          <button onClick={handleLogout} className="sidebar-link sidebar-logout"><LogOut size={18}/>Logout</button>
+          <button onClick={handleLogout} className="sidebar-link sidebar-logout"><LogOut size={18} />Logout</button>
         </div>
       </aside>
 
       <main className="admin-main">
         <header className="admin-topbar">
-          <button className="topbar-menu" onClick={()=>setSidebarOpen(true)}><Menu size={24}/></button>
+          <button className="topbar-menu" onClick={() => setSidebarOpen(true)}><Menu size={24} /></button>
           <span className="topbar-user">{user?.email}</span>
         </header>
         <div className="admin-content">{children}</div>

@@ -70,7 +70,7 @@ export default function Projects({ projects, activeWork = [] }) {
 
         {activeWork && activeWork.length > 0 && (
           <div className="ongoing-work-section">
-            <h3 className="sub-title"><Clock size={18} /> Currently Working On</h3>
+
             <div className={`projects-grid ${isVisible ? 'projects-visible' : ''}`}>
               {activeWork.map((work, i) => (
                 <div key={work.id} className="project-card glass-card work-featured" style={{ animationDelay: `${i * 0.15}s` }}>
@@ -87,17 +87,17 @@ export default function Projects({ projects, activeWork = [] }) {
                       On Going
                     </div>
                   </div>
-                  
+
                   <div className="project-content">
                     <h3 className="project-title">{work.project_name}</h3>
                     <p className="project-desc">{work.description}</p>
-                    
+
                     <div className="project-tags">
                       {(work.tech_stack || []).map((tech, j) => (
                         <span key={j} className="project-tag">{tech}</span>
                       ))}
                     </div>
-                    
+
                     <div className="project-links">
                       {work.live_url && work.live_url !== '#' && (
                         <a href={work.live_url} target="_blank" rel="noopener noreferrer" className="project-link">
@@ -176,7 +176,7 @@ export default function Projects({ projects, activeWork = [] }) {
         .projects-grid {
           display: grid;
           grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-          gap: 24px;
+          gap: 32px;
         }
         .projects-visible .project-card,
         .projects-visible .work-item {
@@ -191,49 +191,68 @@ export default function Projects({ projects, activeWork = [] }) {
           overflow: hidden;
           display: flex;
           flex-direction: column;
+          border-radius: 16px;
+          transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease;
         }
         .project-featured, .work-featured {
-          border-color: rgba(255,215,0,0.15);
+          border-color: rgba(255,215,0,0.2);
+          box-shadow: 0 4px 20px rgba(255,215,0,0.05);
+        }
+        .project-featured:hover, .work-featured:hover {
+          box-shadow: 0 16px 32px rgba(255,215,0,0.15);
         }
         .project-image {
           position: relative;
-          height: 200px;
+          height: 220px;
           background: linear-gradient(135deg, #1a1a1a, #111);
           display: flex;
           align-items: center;
           justify-content: center;
+          overflow: hidden;
+          border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .project-image img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          transition: filter 0.5s ease;
         }
         .project-image-placeholder {
           display: flex;
           align-items: center;
           justify-content: center;
+          width: 100%;
+          height: 100%;
         }
         .project-image-icon {
           font-family: 'JetBrains Mono', monospace;
-          font-size: 2rem;
-          color: rgba(255,215,0,0.2);
+          font-size: 2.5rem;
+          color: rgba(255,215,0,0.15);
         }
         .project-badge {
           position: absolute;
-          top: 12px;
-          right: 12px;
+          top: 16px;
+          right: 16px;
           display: flex;
           align-items: center;
-          gap: 4px;
-          padding: 4px 12px;
-          background: rgba(255,215,0,0.15);
+          gap: 6px;
+          padding: 6px 14px;
+          background: rgba(15,15,15,0.85);
+          backdrop-filter: blur(8px);
           border: 1px solid rgba(255,215,0,0.3);
           border-radius: 50px;
           font-size: 0.75rem;
           color: #ffd700;
           font-weight: 600;
+          letter-spacing: 0.5px;
+          text-transform: uppercase;
         }
         .dimmed-img {
-          filter: brightness(0.35);
-          transition: filter 0.3s ease;
+          filter: brightness(0.6);
+          transition: filter 0.4s ease;
         }
         .project-card:hover .dimmed-img {
-          filter: brightness(0.45);
+          filter: brightness(0.9);
         }
         .ongoing-center-badge {
           position: absolute;
@@ -255,43 +274,53 @@ export default function Projects({ projects, activeWork = [] }) {
           box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
         }
         .project-content {
-          padding: 24px;
+          padding: 28px 24px;
           flex: 1;
           display: flex;
           flex-direction: column;
         }
         .project-title {
-          font-size: 1.2rem;
-          color: #f5f5f5;
-          margin-bottom: 8px;
+          font-size: 1.3rem;
+          color: #fff;
+          margin-bottom: 10px;
+          font-family: 'Space Grotesk', sans-serif;
+          font-weight: 600;
+          letter-spacing: -0.01em;
         }
         .project-desc {
-          color: #888;
-          font-size: 0.9rem;
+          color: #999;
+          font-size: 0.95rem;
           line-height: 1.6;
-          margin-bottom: 16px;
+          margin-bottom: 24px;
           flex: 1;
         }
         .project-tags {
           display: flex;
           flex-wrap: wrap;
-          gap: 6px;
-          margin-bottom: 16px;
+          gap: 8px;
+          margin-bottom: 24px;
         }
         .project-tag {
-          padding: 4px 10px;
-          background: rgba(255,215,0,0.06);
-          border: 1px solid rgba(255,215,0,0.1);
-          border-radius: 4px;
+          padding: 6px 14px;
+          background: rgba(255,255,255,0.04);
+          border: 1px solid rgba(255,255,255,0.08);
+          border-radius: 50px; /* Pill shape */
           font-size: 0.75rem;
+          color: #bbb;
+          font-family: 'Inter', sans-serif;
+          font-weight: 500;
+          transition: all 0.2s ease;
+        }
+        .project-card:hover .project-tag {
+          background: rgba(255,215,0,0.08);
+          border-color: rgba(255,215,0,0.2);
           color: #ffd700;
-          font-family: 'JetBrains Mono', monospace;
         }
         .project-links {
           display: flex;
-          gap: 16px;
-          padding-top: 16px;
-          border-top: 1px solid rgba(255,255,255,0.05);
+          gap: 20px;
+          padding-top: 20px;
+          border-top: 1px solid rgba(255,255,255,0.08);
         }
         .project-link {
           display: flex;
@@ -299,12 +328,15 @@ export default function Projects({ projects, activeWork = [] }) {
           gap: 6px;
           color: #aaa;
           font-size: 0.85rem;
-          font-weight: 500;
-          transition: all 0.3s ease;
+          font-weight: 600;
+          transition: all 0.2s ease;
           text-decoration: none;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
         }
         .project-link:hover {
           color: #ffd700;
+          transform: translateY(-1px);
         }
         
         /* Ongoing Work Styles */

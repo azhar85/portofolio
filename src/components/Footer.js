@@ -25,7 +25,7 @@ export default function Footer({ socialLinks }) {
       <div className="container">
         <div className="footer-content">
           <a href="#home" className="footer-logo">
-            <span style={{color:'#ffd700'}}>&lt;</span>AZ<span style={{color:'#ffd700'}}>/&gt;</span>
+
           </a>
           <div className="footer-socials">
             {links.map((link, i) => (
@@ -33,7 +33,7 @@ export default function Footer({ socialLinks }) {
             ))}
           </div>
           <p className="footer-copy">
-            © {new Date().getFullYear()} Ahmad Azhar. Built with <Heart size={14} style={{display:'inline',verticalAlign:'middle',color:'#ffd700'}} /> and Next.js
+            © {new Date().getFullYear()} ZHARCOMPANY
           </p>
         </div>
       </div>
