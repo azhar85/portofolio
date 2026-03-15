@@ -11,6 +11,7 @@ const sidebarLinks = [
   { label: 'Projects', href: '/admin/projects', icon: FolderKanban },
   { label: 'Businesses', href: '/admin/businesses', icon: Building2 },
   { label: 'Experiences', href: '/admin/experiences', icon: Briefcase },
+  { label: 'Ongoing Work', href: '/admin/work', icon: FolderKanban },
   { label: 'Messages', href: '/admin/messages', icon: MessageSquare },
   { label: 'Social Links', href: '/admin/social', icon: Share2 },
 ];

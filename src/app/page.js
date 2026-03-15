@@ -8,19 +8,22 @@ import Contact from '@/components/Contact';
 import Footer from '@/components/Footer';
 import { createClient } from '@supabase/supabase-js';
 
+export const dynamic = 'force-dynamic'; // Prevent static caching on Vercel
+
 async function getData() {
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   );
 
-  const [profileRes, skillsRes, projectsRes, experiencesRes, businessesRes, socialRes] = await Promise.all([
+  const [profileRes, skillsRes, projectsRes, experiencesRes, businessesRes, socialRes, workRes] = await Promise.all([
     supabase.from('profile').select('*').limit(1).single(),
     supabase.from('skills').select('*').order('category'),
     supabase.from('projects').select('*').order('order'),
     supabase.from('experiences').select('*').order('start_date', { ascending: false }),
     supabase.from('businesses').select('*').order('order'),
     supabase.from('social_links').select('*'),
+    supabase.from('work').select('*').eq('status', 'On Going').order('created_at', { ascending: false })
   ]);
 
   return {
@@ -30,6 +33,7 @@ async function getData() {
     experiences: experiencesRes.data || [],
     businesses: businessesRes.data || [],
     socialLinks: socialRes.data || [],
+    activeWork: workRes.data || [],
   };
 }
 
@@ -51,7 +55,7 @@ export default async function Home() {
       <hr className="divider" />
       <Skills skills={data.skills} />
       <hr className="divider" />
-      <Projects projects={data.projects} />
+      <Projects projects={data.projects} activeWork={data.activeWork} />
       <hr className="divider" />
       <Businesses businesses={data.businesses} />
       <hr className="divider" />

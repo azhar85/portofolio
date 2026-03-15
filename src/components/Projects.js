@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { ExternalLink, Github, Star } from 'lucide-react';
+import { ExternalLink, Github, Star, Clock, CheckCircle } from 'lucide-react';
 
 const defaultProjects = [
   {
@@ -42,7 +42,7 @@ const defaultProjects = [
   },
 ];
 
-export default function Projects({ projects }) {
+export default function Projects({ projects, activeWork = [] }) {
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef(null);
 
@@ -65,8 +65,59 @@ export default function Projects({ projects }) {
           <h2 className="section-title">
             Featured <span className="highlight">Work</span>
           </h2>
-          <p className="section-desc">A selection of projects I&apos;ve built and contributed to</p>
+          <p className="section-desc">A selection of projects I&apos;ve built and current ongoing works</p>
         </div>
+
+        {activeWork && activeWork.length > 0 && (
+          <div className="ongoing-work-section">
+            <h3 className="sub-title"><Clock size={18} /> Currently Working On</h3>
+            <div className={`projects-grid ${isVisible ? 'projects-visible' : ''}`}>
+              {activeWork.map((work, i) => (
+                <div key={work.id} className="project-card glass-card work-featured" style={{ animationDelay: `${i * 0.15}s` }}>
+                  <div className="project-image">
+                    {work.image_url ? (
+                      <img src={work.image_url} alt={work.project_name} className="dimmed-img" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    ) : (
+                      <div className="project-image-placeholder dimmed-img">
+                        <span className="project-image-icon">{'</>'}</span>
+                      </div>
+                    )}
+                    <div className="ongoing-center-badge">
+                      <Clock size={18} />
+                      On Going
+                    </div>
+                  </div>
+                  
+                  <div className="project-content">
+                    <h3 className="project-title">{work.project_name}</h3>
+                    <p className="project-desc">{work.description}</p>
+                    
+                    <div className="project-tags">
+                      {(work.tech_stack || []).map((tech, j) => (
+                        <span key={j} className="project-tag">{tech}</span>
+                      ))}
+                    </div>
+                    
+                    <div className="project-links">
+                      {work.live_url && work.live_url !== '#' && (
+                        <a href={work.live_url} target="_blank" rel="noopener noreferrer" className="project-link">
+                          <ExternalLink size={16} />
+                          Live Demo
+                        </a>
+                      )}
+                      {work.repo_url && work.repo_url !== '#' && (
+                        <a href={work.repo_url} target="_blank" rel="noopener noreferrer" className="project-link">
+                          <Github size={16} />
+                          Source Code
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         <div className={`projects-grid ${isVisible ? 'projects-visible' : ''}`}>
           {data.map((project, i) => (
@@ -127,7 +178,8 @@ export default function Projects({ projects }) {
           grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
           gap: 24px;
         }
-        .projects-visible .project-card {
+        .projects-visible .project-card,
+        .projects-visible .work-item {
           animation: fadeInUp 0.6s ease forwards;
         }
         @keyframes fadeInUp {
@@ -140,7 +192,7 @@ export default function Projects({ projects }) {
           display: flex;
           flex-direction: column;
         }
-        .project-featured {
+        .project-featured, .work-featured {
           border-color: rgba(255,215,0,0.15);
         }
         .project-image {
@@ -175,6 +227,32 @@ export default function Projects({ projects }) {
           font-size: 0.75rem;
           color: #ffd700;
           font-weight: 600;
+        }
+        .dimmed-img {
+          filter: brightness(0.35);
+          transition: filter 0.3s ease;
+        }
+        .project-card:hover .dimmed-img {
+          filter: brightness(0.45);
+        }
+        .ongoing-center-badge {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 8px 20px;
+          background: rgba(0, 0, 0, 0.4);
+          border: 1px solid rgba(0, 200, 255, 0.5);
+          border-radius: 50px;
+          font-size: 0.95rem;
+          color: #00c8ff;
+          font-weight: 600;
+          backdrop-filter: blur(8px);
+          z-index: 10;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
         }
         .project-content {
           padding: 24px;
@@ -227,6 +305,20 @@ export default function Projects({ projects }) {
         }
         .project-link:hover {
           color: #ffd700;
+        }
+        
+        /* Ongoing Work Styles */
+        .ongoing-work-section {
+          margin-bottom: 64px;
+        }
+        .sub-title {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          color: #ffd700;
+          font-size: 1.2rem;
+          font-weight: 500;
+          margin-bottom: 24px;
         }
         @media (max-width: 768px) {
           .projects-grid {
