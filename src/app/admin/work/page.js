@@ -302,7 +302,7 @@ export default function AdminWork() {
       <div className="page-header">
         <h1 className="page-title">Work Tracker</h1>
         <button className="btn btn-primary" onClick={() => handleOpenModal()}>
-          <Plus size={18} /> Add New Work
+          <Plus size={18} /> Add
         </button>
       </div>
 
@@ -311,29 +311,34 @@ export default function AdminWork() {
       ) : (
         <div className="work-list">
           {workList.map((work) => (
-            <div 
-              key={work.id} 
+            <div
+              key={work.id}
               className="work-list-item glass-card"
               onClick={() => handleOpenPaymentModal(work)}
               style={{ cursor: 'pointer' }}
             >
-              
+
               {/* Left Side: Info */}
               <div className="work-item-info">
-                <div className="work-item-header">
-                  <h3 className="work-title">{work.project_name}</h3>
-                  <span className={`status-badge ${work.status === 'Finished' ? 'status-finished' : 'status-ongoing'}`}>
-                    {work.status === 'Finished' ? <CheckCircle size={12} /> : <Clock size={12} />}
-                    {work.status}
+                <div className="work-item-header" style={{ justifyContent: 'space-between', width: '100%' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <h3 className="work-title">{work.project_name}</h3>
+                    {work.status === 'Finished' && (
+                      <span className="status-badge status-finished">
+                        <CheckCircle size={12} />
+                        Finished
+                      </span>
+                    )}
+                  </div>
+                  <span className="meta-deadline" style={{ fontSize: '0.85rem', color: '#888' }}>
+                    {work.deadline || '-'}
                   </span>
                 </div>
                 <div className="work-item-meta" style={{ marginTop: 4 }}>
                   <span className="meta-price">{formatCurrency(work.price)}</span>
-                  <span className="meta-divider">•</span>
-                  <span className="meta-deadline">DL: {work.deadline || '-'}</span>
                 </div>
                 <p className="work-client" style={{ marginTop: 4 }}>{work.client_name ? `Client: ${work.client_name}` : 'No Client Name'}</p>
-                
+
                 <div className="compact-progress" style={{ marginTop: 8 }}>
                   <div className="compact-progress-header">
                     <span>Terbayar: <strong className="text-success">{formatCurrency(work.installments_paid)}</strong></span>
@@ -351,23 +356,23 @@ export default function AdminWork() {
               {/* Right Side: Actions (Stop propagation to prevent card click) */}
               <div className="work-item-actions">
                 <div className="action-group">
-                  <button 
-                    className="icon-btn edit-btn" 
-                    onClick={(e) => { e.stopPropagation(); handleOpenModal(work); }} 
+                  <button
+                    className="icon-btn edit-btn"
+                    onClick={(e) => { e.stopPropagation(); handleOpenModal(work); }}
                     title="Edit Details"
                   >
                     <Edit2 size={16} />
                   </button>
-                  <button 
-                    className="icon-btn delete-btn" 
-                    onClick={(e) => { e.stopPropagation(); handleDeleteClick(work.id); }} 
+                  <button
+                    className="icon-btn delete-btn"
+                    onClick={(e) => { e.stopPropagation(); handleDeleteClick(work.id); }}
                     title="Delete"
                   >
                     <Trash2 size={16} />
                   </button>
                 </div>
               </div>
-              
+
             </div>
           ))}
           {workList.length === 0 && (
@@ -530,7 +535,7 @@ export default function AdminWork() {
                 <select
                   value={paymentData.status}
                   onChange={e => setPaymentData({ ...paymentData, status: e.target.value })}
-                  style={{ 
+                  style={{
                     border: paymentData.status === 'Finished' ? '1px solid #00c864' : '1px solid rgba(255,215,0,0.3)',
                     color: paymentData.status === 'Finished' ? '#00c864' : '#fff'
                   }}
@@ -564,7 +569,7 @@ export default function AdminWork() {
               </div>
 
               <div className="installments-section" style={{ padding: '4px 0 0 0' }}>
-                
+
                 <div className="form-group" style={{ width: '100%', marginBottom: 16 }}>
                   <label style={{ color: '#00c864' }}>+ Input Pembayaran Baru (Rp)</label>
                   <div style={{ display: 'flex', gap: 8 }}>
@@ -586,8 +591,8 @@ export default function AdminWork() {
                     <h4>Histori Pembayaran</h4>
                     <div className="history-list">
                       {paymentData.payment_history.map((hist, idx) => (
-                        <div 
-                          key={idx} 
+                        <div
+                          key={idx}
                           className="history-item"
                           style={{ borderBottom: idx < paymentData.payment_history.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none' }}
                         >
