@@ -43,6 +43,8 @@ const defaultProjects = [
   },
 ];
 
+const fallbackProjectImage = '/default-project.svg';
+
 export default function Projects({ projects, activeWork = [] }) {
   const [isVisible, setIsVisible] = useState(false);
   const [activeCard, setActiveCard] = useState(null);
@@ -85,13 +87,12 @@ export default function Projects({ projects, activeWork = [] }) {
                     onClick={() => toggleCard(`work-${work.id}`)}
                   >
                     <div className="project-image">
-                      {work.image_url ? (
-                        <img src={work.image_url} alt={work.project_name} className="dimmed-img" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      ) : (
-                        <div className="project-image-placeholder dimmed-img">
-                          <span className="project-image-icon">{'</>'}</span>
-                        </div>
-                      )}
+                      <img
+                        src={work.image_url || fallbackProjectImage}
+                        alt={work.project_name}
+                        className="dimmed-img project-main-image"
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      />
                       <div className="ongoing-center-badge">
                         <Clock size={18} />
                         On Going
@@ -138,13 +139,12 @@ export default function Projects({ projects, activeWork = [] }) {
                 onClick={() => toggleCard(`project-${i}`)}
               >
                 <div className="project-image">
-                  {project.image_url ? (
-                    <img src={project.image_url} alt={project.title} className="project-main-image" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                  ) : (
-                    <div className="project-image-placeholder">
-                      <span className="project-image-icon">{'</>'}</span>
-                    </div>
-                  )}
+                  <img
+                    src={project.image_url || fallbackProjectImage}
+                    alt={project.title}
+                    className="project-main-image"
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  />
                   {project.featured && (
                     <div className="project-badge">
                       <Star size={12} />
