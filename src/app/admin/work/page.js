@@ -136,6 +136,14 @@ export default function AdminWork() {
     });
   }
 
+  function getRemainingAmount(price, paid) {
+    return Math.max(0, Number(price || 0) - Number(paid || 0));
+  }
+
+  function isPaymentSettled(price, paid) {
+    return getRemainingAmount(price, paid) <= 0;
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
     try {
@@ -145,8 +153,8 @@ export default function AdminWork() {
         deadline: formData.deadline ? formData.deadline : null
       };
 
-      // Check if status is Finished to trigger confirmation instead of direct save
-      if (workData.status === 'Finished') {
+      // Only migrate if the project is finished and fully paid.
+      if (workData.status === 'Finished' && isPaymentSettled(workData.price, workData.installments_paid)) {
         // Close modal first, then show confirmation
         setIsModalOpen(false);
         triggerFinishMigration(workData, false);
@@ -181,18 +189,6 @@ export default function AdminWork() {
   async function handlePaymentSubmit(e) {
     e.preventDefault();
     try {
-      if (paymentData.status === 'Finished') {
-        // If they change status to Finished in Payment Modal, fetch full work data for migration
-        const { data: fullWork } = await supabase.from('work').select('*').eq('id', paymentData.id).single();
-        if (fullWork) {
-          setIsPaymentModalOpen(false);
-          const updatedWorkData = { ...fullWork, ...paymentData };
-          triggerFinishMigration(updatedWorkData, true);
-        }
-        return;
-      }
-
-      // Calculate total paid from history if we are adding a new payment
       let updatedHistory = [...(paymentData.payment_history || [])];
       let newTotalPaid = paymentData.installments_paid;
 
@@ -202,6 +198,22 @@ export default function AdminWork() {
           date: new Date().toISOString()
         });
         newTotalPaid += paymentData.new_payment_amount;
+      }
+
+      if (paymentData.status === 'Finished' && isPaymentSettled(paymentData.price, newTotalPaid)) {
+        // If they change status to Finished in Payment Modal, fetch full work data for migration
+        const { data: fullWork } = await supabase.from('work').select('*').eq('id', paymentData.id).single();
+        if (fullWork) {
+          setIsPaymentModalOpen(false);
+          const updatedWorkData = {
+            ...fullWork,
+            ...paymentData,
+            installments_paid: newTotalPaid,
+            payment_history: updatedHistory
+          };
+          triggerFinishMigration(updatedWorkData, true);
+        }
+        return;
       }
 
       const { error } = await supabase
@@ -310,7 +322,7 @@ export default function AdminWork() {
           {workList.map((work) => (
             <div
               key={work.id}
-              className="work-list-item glass-card"
+              className={`work-list-item glass-card ${work.status === 'Finished' && !isPaymentSettled(work.price, work.installments_paid) ? 'work-list-item-finished' : ''}`}
               onClick={() => handleOpenPaymentModal(work)}
               style={{ cursor: 'pointer' }}
             >
@@ -323,7 +335,7 @@ export default function AdminWork() {
                     {work.status === 'Finished' && (
                       <span className="status-badge status-finished">
                         <CheckCircle size={12} />
-                        Finished
+                        {isPaymentSettled(work.price, work.installments_paid) ? 'Finished' : 'Finished - Belum Lunas'}
                       </span>
                     )}
                   </div>
@@ -336,14 +348,14 @@ export default function AdminWork() {
                 </div>
                 <p className="work-client" style={{ marginTop: 4 }}>{work.client_name ? `Client: ${work.client_name}` : 'No Client Name'}</p>
 
-                <div className="compact-progress" style={{ marginTop: 8 }}>
+                <div className={`compact-progress ${work.status === 'Finished' && !isPaymentSettled(work.price, work.installments_paid) ? 'compact-progress-finished' : ''}`} style={{ marginTop: 8 }}>
                   <div className="compact-progress-header">
                     <span>Terbayar: <strong className="text-success">{formatCurrency(work.installments_paid)}</strong></span>
-                    <span>Sisa: <strong className="text-danger">{formatCurrency(Math.max(0, work.price - work.installments_paid))}</strong></span>
+                    <span>Sisa: <strong className="text-danger">{formatCurrency(getRemainingAmount(work.price, work.installments_paid))}</strong></span>
                   </div>
                   <div className="progress-bar thin">
                     <div
-                      className="progress-fill"
+                      className={`progress-fill ${work.status === 'Finished' && !isPaymentSettled(work.price, work.installments_paid) ? 'progress-fill-finished' : ''}`}
                       style={{ width: `${Math.min(100, Math.max(0, (work.installments_paid / Math.max(1, work.price)) * 100))}%` }}
                     ></div>
                   </div>
@@ -537,7 +549,7 @@ export default function AdminWork() {
                   }}
                 >
                   <option value="On Going">On Going</option>
-                  <option value="Finished">Finished (Migrate to Projects)</option>
+                  <option value="Finished">Finished</option>
                 </select>
               </div>
 
@@ -704,6 +716,15 @@ export default function AdminWork() {
           background: rgba(255,255,255,0.03);
           border-color: rgba(255,215,0,0.15);
         }
+        .work-list-item-finished {
+          border-color: rgba(0, 200, 100, 0.28);
+          background: linear-gradient(135deg, rgba(0, 200, 100, 0.08), rgba(255,255,255,0.02));
+          box-shadow: inset 0 0 0 1px rgba(0, 200, 100, 0.08);
+        }
+        .work-list-item-finished:hover {
+          background: linear-gradient(135deg, rgba(0, 200, 100, 0.14), rgba(255,255,255,0.03));
+          border-color: rgba(0, 200, 100, 0.45);
+        }
         
         .work-item-info {
           flex: 1;
@@ -757,6 +778,10 @@ export default function AdminWork() {
           border-radius: 8px;
           border: 1px solid rgba(255,255,255,0.02);
         }
+        .compact-progress-finished {
+          background: rgba(0, 200, 100, 0.08);
+          border-color: rgba(0, 200, 100, 0.12);
+        }
         .compact-progress-header {
           display: flex;
           justify-content: space-between;
@@ -776,6 +801,9 @@ export default function AdminWork() {
           height: 100%;
           background: #ffd700;
           border-radius: 4px;
+        }
+        .progress-fill-finished {
+          background: linear-gradient(90deg, #00c864, #39d98a);
         }
         
         .work-item-actions {
